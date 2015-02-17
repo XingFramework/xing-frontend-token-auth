@@ -12,3 +12,5 @@ coverage
 .ruby-gemset
 Gemfile
 Gemfile.lock
+.vim-role
+.*.sw?
