@@ -593,7 +593,7 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
         };
       }
     ]);
-    if (window.isOldIE) {
+    if (window.isOldIE()) {
       httpMethods = ['get', 'post', 'put', 'patch', 'delete'];
       return angular.forEach(httpMethods, function(method) {
         var _base;
