@@ -662,13 +662,14 @@ angular.module('ng-token-auth', ['ngCookies'])
     ]
 
     # define http methods that may need to carry auth headers
-    httpMethods = ['get', 'post', 'put', 'patch', 'delete']
 
-    # disable IE ajax request caching for each of the necessary http methods
-    angular.forEach(httpMethods, (method) ->
-      $httpProvider.defaults.headers[method] ?= {}
-      $httpProvider.defaults.headers[method]['If-Modified-Since'] = '0'
-    )
+    if window.isOldIE()
+      # disable IE ajax request caching for each of the necessary http methods
+      httpMethods = ['get', 'post', 'put', 'patch', 'delete']
+      angular.forEach(httpMethods, (method) ->
+        $httpProvider.defaults.headers[method] ?= {}
+        $httpProvider.defaults.headers[method]['If-Modified-Since'] = '0'
+      )
   ])
 
   .run(['$auth', '$window', '$rootScope', ($auth, $window, $rootScope) ->
