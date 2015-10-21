@@ -53,9 +53,9 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
   defaultConfigName = "default";
   return {
     configure: function(params) {
-      var conf, defaults, fullConfig, i, k, label, v, _i, _len;
+      var conf, defaults, fullConfig, i, j, k, label, len, v;
       if (params instanceof Array && params.length) {
-        for (i = _i = 0, _len = params.length; _i < _len; i = ++_i) {
+        for (i = j = 0, len = params.length; j < len; i = ++j) {
           conf = params[i];
           label = null;
           for (k in conf) {
@@ -266,7 +266,7 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
               return $window.location.replace(url);
             },
             buildAuthUrl: function(provider, opts) {
-              var authUrl, key, val, _ref;
+              var authUrl, key, ref, val;
               if (opts == null) {
                 opts = {};
               }
@@ -274,9 +274,9 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
               authUrl += this.getConfig(opts.config).authProviderPaths[provider];
               authUrl += '?auth_origin_url=' + encodeURIComponent($window.location.href);
               if (opts.params != null) {
-                _ref = opts.params;
-                for (key in _ref) {
-                  val = _ref[key];
+                ref = opts.params;
+                for (key in ref) {
+                  val = ref[key];
                   authUrl += '&';
                   authUrl += encodeURIComponent(key);
                   authUrl += '=';
@@ -412,10 +412,10 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
               return this.getConfig().parseExpiry(this.retrieveData('auth_headers'));
             },
             invalidateTokens: function() {
-              var key, val, _ref;
-              _ref = this.user;
-              for (key in _ref) {
-                val = _ref[key];
+              var key, ref, val;
+              ref = this.user;
+              for (key in ref) {
+                val = ref[key];
                 delete this.user[key];
               }
               this.deleteData('currentConfigName');
@@ -454,11 +454,11 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
               return this.resolveDfd();
             },
             buildAuthHeaders: function(ctx) {
-              var headers, key, val, _ref;
+              var headers, key, ref, val;
               headers = {};
-              _ref = this.getConfig().tokenFormat;
-              for (key in _ref) {
-                val = _ref[key];
+              ref = this.getConfig().tokenFormat;
+              for (key in ref) {
+                val = ref[key];
                 headers[key] = $interpolate(val)(ctx);
               }
               return headers;
@@ -557,15 +557,15 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
           request: function(req) {
             $injector.invoke([
               '$http', '$auth', function($http, $auth) {
-                var key, val, _ref, _results;
+                var key, ref, results, val;
                 if (req.url.match($auth.apiUrl())) {
-                  _ref = $auth.retrieveData('auth_headers');
-                  _results = [];
-                  for (key in _ref) {
-                    val = _ref[key];
-                    _results.push(req.headers[key] = val);
+                  ref = $auth.retrieveData('auth_headers');
+                  results = [];
+                  for (key in ref) {
+                    val = ref[key];
+                    results.push(req.headers[key] = val);
                   }
-                  return _results;
+                  return results;
                 }
               }
             ]);
@@ -574,12 +574,12 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
           response: function(resp) {
             $injector.invoke([
               '$http', '$auth', function($http, $auth) {
-                var key, newHeaders, val, _ref;
+                var key, newHeaders, ref, val;
                 if (resp.config.url.match($auth.apiUrl())) {
                   newHeaders = {};
-                  _ref = $auth.getConfig().tokenFormat;
-                  for (key in _ref) {
-                    val = _ref[key];
+                  ref = $auth.getConfig().tokenFormat;
+                  for (key in ref) {
+                    val = ref[key];
                     if (resp.headers(key)) {
                       newHeaders[key] = resp.headers(key);
                     }
@@ -596,9 +596,9 @@ angular.module('ng-token-auth', ['ngCookies']).provider('$auth', function() {
     if (window.isOldIE()) {
       httpMethods = ['get', 'post', 'put', 'patch', 'delete'];
       return angular.forEach(httpMethods, function(method) {
-        var _base;
-        if ((_base = $httpProvider.defaults.headers)[method] == null) {
-          _base[method] = {};
+        var base;
+        if ((base = $httpProvider.defaults.headers)[method] == null) {
+          base[method] = {};
         }
         return $httpProvider.defaults.headers[method]['If-Modified-Since'] = '0';
       });
