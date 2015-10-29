@@ -85,6 +85,9 @@
         '$http', '$q', '$location', '$cookieStore', '$window', '$timeout', '$rootScope', '$interpolate', (function(_this) {
           return function($http, $q, $location, $cookieStore, $window, $timeout, $rootScope, $interpolate) {
             return {
+              sequences: [],
+              subSequence: 0,
+              lastSequenceTime: null,
               header: null,
               dfd: null,
               user: {},
@@ -134,6 +137,24 @@
                   this.cancel(error);
                   return $rootScope.$broadcast('auth:login-error', error);
                 }
+              },
+              nextSequence: function() {
+                var time = Date.now();
+                if(time === this.lastSequenceTime){
+                  this.subSequence++;
+                } else {
+                  this.subSequence = 0;
+                }
+
+                var sequence = time * 100 + this.subSequence; // some concern here: what if more than 100 reqs/ms?
+                this.sequences.push(sequence);
+                return sequence;
+              },
+              checkSequence: function(sequence){
+                sequence = parseInt(sequence);
+                if(sequence < this.sequences[0]){ return false; }
+                while( this.sequences.length > 0 && sequence >= this.sequences[0] ){ this.sequences.shift(); }
+                return true;
               },
               addScopeMethods: function() {
                 $rootScope.user = this.user;
@@ -567,15 +588,14 @@
             request: function(req) {
               $injector.invoke([
                 '$http', '$auth', function($http, $auth) {
-                  var key, ref, results, val;
+                  var key, ref, val;
                   if (req.url.match($auth.apiUrl())) {
                     ref = $auth.retrieveData('auth_headers');
-                    results = [];
+                    req.headers["sequence"] = $auth.nextSequence();
                     for (key in ref) {
                       val = ref[key];
-                      results.push(req.headers[key] = val);
+                      req.headers[key] = val;
                     }
-                    return results;
                   }
                 }
               ]);
@@ -584,8 +604,11 @@
             response: function(resp) {
               $injector.invoke([
                 '$http', '$auth', function($http, $auth) {
-                  var key, newHeaders, ref, val;
+                  var key, newHeaders, ref, val, seq;
                   if (resp.config.url.match($auth.apiUrl())) {
+                    seq = resp.headers("sequence");
+                    if(seq && !$auth.checkSequence(seq)){ return; }
+
                     newHeaders = {};
                     ref = $auth.getConfig().tokenFormat;
                     for (key in ref) {
